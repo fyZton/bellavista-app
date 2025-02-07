@@ -3,122 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard del Administrador</title>
+    <title>Dashboard Administrador - Bella Vista</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .main-container {
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .section-card .card-header {
+            background: linear-gradient(135deg, #0069d9, #005cbf);
+            color: white;
+            padding: 1.25rem;
+            border-bottom: none;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 1000px;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-top: 1px solid #f1f3f5;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-admin {
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-admin i {
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <!-- Botón para cerrar sesión -->
-        <div class="text-right mb-3">
-            <a href="{{ url_for('logout') }}" class="btn btn-danger">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-            </a>
-        </div>
-
-        <h1 class="text-center">Dashboard del Administrador</h1>
-
-        <!-- Botones superiores -->
-        <div class="text-right mb-3">
-            <a href="{{ url_for('admin_registro') }}" class="btn btn-success">
-                <i class="fas fa-user-plus"></i> Registrar Nuevo Usuario
-            </a>
-            <a href="{{ url_for('gestionar_beneficios') }}" class="btn btn-primary">
-                <i class="fas fa-gift"></i> Gestionar Beneficios
-            </a>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div>
+                <h1 class="h3 mb-0 font-weight-bold text-primary">Panel de Administración</h1>
+                <p class="mb-0 text-muted">Bienvenido al sistema de gestión de Bella Vista</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('admin_registro') }}" class="btn btn-admin btn-success">
+                    <i class="fas fa-user-plus"></i> Nuevo Usuario
+                </a>
+                <a href="{{ url_for('gestionar_beneficios') }}" class="btn btn-admin btn-primary">
+                    <i class="fas fa-gift"></i> Beneficios
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn btn-admin btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </a>
+            </div>
         </div>
 
         <!-- Sección de Usuarios -->
-        <h2>Usuarios</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Correo</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for usuario in usuarios %}
-                    <tr>
-                        <td>{{ usuario[0] }}</td>
-                        <td>{{ usuario[1] }}</td>
-                        <td>{{ usuario[2] }}</td>
-                        <td>{{ usuario[3] }}</td>
-                        <td>{{ usuario[4] }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="section-card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-users"></i> Lista de Usuarios Registrados</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Correo Electrónico</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                            <tr>
+                                <td class="font-weight-bold text-primary">#{{ usuario[0] }}</td>
+                                <td>{{ usuario[1] }}</td>
+                                <td>{{ usuario[2] }}</td>
+                                <td>{{ usuario[3] }}</td>
+                                <td><a href="mailto:{{ usuario[4] }}">{{ usuario[4] }}</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
         <!-- Sección de Pagos -->
-        <h2>Historial de Pagos</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Monto</th>
-                    <th>Fecha</th>
-                    <th>Número de Referencia</th>
-                    <th>Banco</th>
-                    <th>Beneficio</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for pago in pagos %}
-                    <tr>
-                        <td>{{ pago[0] }}</td>
-                        <td>{{ pago[1] }}</td>
-                        <td>{{ pago[2] }} Bs.</td>
-                        <td>{{ pago[3] }}</td>
-                        <td>{{ pago[4] }}</td>
-                        <td>{{ pago[5] }}</td>
-                        <td>{{ pago[6] }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="section-card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-file-invoice-dollar"></i> Historial de Transacciones</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                            <th>Referencia</th>
+                            <th>Banco</th>
+                            <th>Beneficio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pago in pagos %}
+                            <tr>
+                                <td class="font-weight-bold text-primary">#{{ pago[0] }}</td>
+                                <td>{{ pago[1] }}</td>
+                                <td class="font-weight-bold text-success">{{ pago[2] }} Bs.</td>
+                                <td>{{ pago[3] }}</td>
+                                <td>{{ pago[4] }}</td>
+                                <td>{{ pago[5] }}</td>
+                                <td><span class="badge badge-primary">{{ pago[6] }}</span></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        <!-- Sección de Beneficios -->
-        <h2>Beneficios</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for beneficio in beneficios %}
-                    <tr>
-                        <td>{{ beneficio[0] }}</td>
-                        <td>{{ beneficio[1] }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Sección de Beneficios y Bancos -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="section-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-hand-holding-heart"></i> Beneficios Disponibles</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre del Beneficio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for beneficio in beneficios %}
+                                    <tr>
+                                        <td class="font-weight-bold text-primary">#{{ beneficio[0] }}</td>
+                                        <td>{{ beneficio[1] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Sección de Bancos -->
-        <h2>Bancos</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for banco in bancos %}
-                    <tr>
-                        <td>{{ banco[0] }}</td>
-                        <td>{{ banco[1] }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            <div class="col-md-6">
+                <div class="section-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-university"></i> Bancos Asociados</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre del Banco</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for banco in bancos %}
+                                    <tr>
+                                        <td class="font-weight-bold text-primary">#{{ banco[0] }}</td>
+                                        <td>{{ banco[1] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

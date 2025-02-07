@@ -6,67 +6,163 @@
     <title>Gestión de Beneficios</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #0069d9, #005cbf);
+            color: white;
+            padding: 1.25rem;
+            border-bottom: none;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 1000px;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-top: 1px solid #f1f3f5;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #0069d9, #005cbf);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .form-control-custom {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <!-- Botón para volver al dashboard -->
-        <div class="text-left mb-3">
-            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Volver al Dashboard
+    <div class="main-container">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary btn-action">
+                <i class="fas fa-arrow-left mr-2"></i>Volver al Panel
             </a>
+            <h1 class="text-primary font-weight-bold mb-0">Gestión de Beneficios</h1>
         </div>
 
-        <h1 class="text-center">Gestión de Beneficios</h1>
+        <!-- Card Contenedora -->
+        <div class="section-card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-gift mr-2"></i>Listado de Beneficios</h5>
+            </div>
+            
+            <div class="p-4">
+                <!-- Barra de Acciones -->
+                <div class="d-flex justify-content-end mb-4">
+                    <button class="btn btn-success btn-action" data-toggle="modal" data-target="#crearBeneficioModal">
+                        <i class="fas fa-plus-circle mr-2"></i>Nuevo Beneficio
+                    </button>
+                </div>
 
-        <!-- Botón para crear un nuevo beneficio -->
-        <div class="text-right mb-3">
-            <button class="btn btn-success" data-toggle="modal" data-target="#crearBeneficioModal">
-                <i class="fas fa-plus"></i> Crear Beneficio
-            </button>
+                <!-- Tabla de Beneficios -->
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre del Beneficio</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for beneficio in beneficios %}
+                                <tr>
+                                    <td class="font-weight-bold text-primary">#{{ beneficio[0] }}</td>
+                                    <td>{{ beneficio[1] }}</td>
+                                    <td>
+                                        <span class="status-badge {{ 'bg-success' if beneficio[2] else 'bg-secondary' }}">
+                                            {{ "Activo" if beneficio[2] else "Inactivo" }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            {% if beneficio[2] %}
+                                                <button class="btn btn-warning btn-action" data-toggle="modal" data-target="#modificarBeneficioModal{{ beneficio[0] }}">
+                                                    <i class="fas fa-edit mr-2"></i>Editar
+                                                </button>
+                                                <button class="btn btn-danger btn-action" onclick="eliminarBeneficio({{ beneficio[0] }})">
+                                                    <i class="fas fa-toggle-off mr-2"></i>Desactivar
+                                                </button>
+                                            {% else %}
+                                                <button class="btn btn-success btn-action" onclick="reactivarBeneficio({{ beneficio[0] }})">
+                                                    <i class="fas fa-toggle-on mr-2"></i>Activar
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-
-        <!-- Tabla de beneficios -->
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for beneficio in beneficios %}
-                    <tr>
-                        <td>{{ beneficio[0] }}</td>  <!-- ID -->
-                        <td>{{ beneficio[1] }}</td>  <!-- Nombre -->
-                        <td>{{ "Activo" if beneficio[2] else "Inactivo" }}</td>  <!-- Estado -->
-                        <td>
-                            {% if beneficio[2] %}  <!-- Si está activo -->
-                                <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modificarBeneficioModal{{ beneficio[0] }}">
-                                    <i class="fas fa-edit"></i> Modificar
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="eliminarBeneficio({{ beneficio[0] }})">
-                                    <i class="fas fa-trash"></i> Desactivar
-                                </button>
-                            {% else %}  <!-- Si está inactivo -->
-                                <button class="btn btn-success btn-sm" onclick="reactivarBeneficio({{ beneficio[0] }})">
-                                    <i class="fas fa-check"></i> Reactivar
-                                </button>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
 
-    <!-- Modal para Crear Beneficio -->
+    <!-- Modal Crear Beneficio -->
     <div class="modal fade" id="crearBeneficioModal" tabindex="-1" aria-labelledby="crearBeneficioModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="crearBeneficioModalLabel">Crear Nuevo Beneficio</h5>
+                    <h5 class="modal-title"><i class="fas fa-plus-circle mr-2"></i>Nuevo Beneficio</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -74,12 +170,12 @@
                 <div class="modal-body">
                     <form id="formCrearBeneficio" method="POST" action="/admin/crear_beneficio">
                         <div class="form-group">
-                            <label for="nombreBeneficio">Nombre del Beneficio</label>
-                            <input type="text" class="form-control" id="nombreBeneficio" name="nombre" required>
+                            <label>Nombre del Beneficio</label>
+                            <input type="text" class="form-control-custom" name="nombre" required>
                         </div>
                         <div class="form-group">
-                            <label for="estadoBeneficio">Estado</label>
-                            <select class="form-control" id="estadoBeneficio" name="activo" required>
+                            <label>Estado Inicial</label>
+                            <select class="form-control-custom" name="activo" required>
                                 <option value="1">Activo</option>
                                 <option value="0">Inactivo</option>
                             </select>
@@ -87,20 +183,22 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                    <button type="submit" form="formCrearBeneficio" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary btn-action" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="formCrearBeneficio" class="btn btn-primary btn-action">
+                        <i class="fas fa-save mr-2"></i>Guardar
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    
+    <!-- Modales de Edición -->
     {% for beneficio in beneficios %}
-    <div class="modal fade" id="modificarBeneficioModal{{ beneficio[0] }}" tabindex="-1" aria-labelledby="modificarBeneficioModalLabel{{ beneficio[0] }}" aria-hidden="true">
-        <div class="modal-dialog">
+    <div class="modal fade" id="modificarBeneficioModal{{ beneficio[0] }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modificarBeneficioModalLabel{{ beneficio[0] }}">Modificar Beneficio</h5>
+                    <h5 class="modal-title"><i class="fas fa-edit mr-2"></i>Editar Beneficio</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -108,12 +206,12 @@
                 <div class="modal-body">
                     <form id="formModificarBeneficio{{ beneficio[0] }}" method="POST" action="/admin/modificar_beneficio/{{ beneficio[0] }}">
                         <div class="form-group">
-                            <label for="nombreBeneficio{{ beneficio[0] }}">Nombre del Beneficio</label>
-                            <input type="text" class="form-control" id="nombreBeneficio{{ beneficio[0] }}" name="nombre" value="{{ beneficio[1] }}" required>
+                            <label>Nombre del Beneficio</label>
+                            <input type="text" class="form-control-custom" name="nombre" value="{{ beneficio[1] }}" required>
                         </div>
                         <div class="form-group">
-                            <label for="estadoBeneficio{{ beneficio[0] }}">Estado</label>
-                            <select class="form-control" id="estadoBeneficio{{ beneficio[0] }}" name="activo" required>
+                            <label>Estado Actual</label>
+                            <select class="form-control-custom" name="activo" required>
                                 <option value="1" {% if beneficio[2] %}selected{% endif %}>Activo</option>
                                 <option value="0" {% if not beneficio[2] %}selected{% endif %}>Inactivo</option>
                             </select>
@@ -121,42 +219,31 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                    <button type="submit" form="formModificarBeneficio{{ beneficio[0] }}" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary btn-action" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="formModificarBeneficio{{ beneficio[0] }}" class="btn btn-primary btn-action">
+                        <i class="fas fa-save mr-2"></i>Guardar
+                    </button>
                 </div>
             </div>
         </div>
     </div>
     {% endfor %}
 
-    
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         function eliminarBeneficio(id) {
-            if (confirm("¿Estás seguro de que deseas desactivar este beneficio?")) {
+            if (confirm("¿Estás seguro de desactivar este beneficio?")) {
                 fetch(`/admin/eliminar_beneficio/${id}`, { method: 'POST' })
-                    .then(response => {
-                        if (response.ok) {
-                            location.reload();
-                        } else {
-                            alert("Error al desactivar el beneficio.");
-                        }
-                    });
+                    .then(response => response.ok ? location.reload() : alert("Error al desactivar"));
             }
         }
 
         function reactivarBeneficio(id) {
-            if (confirm("¿Estás seguro de que deseas reactivar este beneficio?")) {
+            if (confirm("¿Deseas reactivar este beneficio?")) {
                 fetch(`/admin/reactivar_beneficio/${id}`, { method: 'POST' })
-                    .then(response => {
-                        if (response.ok) {
-                            location.reload();
-                        } else {
-                            alert("Error al reactivar el beneficio.");
-                        }
-                    });
+                    .then(response => response.ok ? location.reload() : alert("Error al reactivar"));
             }
         }
     </script>
